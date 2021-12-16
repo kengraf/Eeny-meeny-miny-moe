@@ -32,6 +32,8 @@ AWS CLI to create a Lambda function require files for packages, roles, and polic
 Create role for Lambda function to access DynamoDB `EenyMeenyMinyMoeRole`
 ```
 aws iam create-policy --policy-name LambdaDynamoDBAccessPolicy --policy-document file://lambdapolicy.json
+aws iam create-role --role-name EenyMeenyMinyMoeLambdaRole --assume-role-policy-document file://lambdatrustpolicy.json
+
 
 {
     "Version": "2012-10-17",
