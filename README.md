@@ -33,6 +33,7 @@ Create role for Lambda function to access DynamoDB `EenyMeenyMinyMoeRole`
 ```
 aws iam create-policy --policy-name LambdaDynamoDBAccessPolicy --policy-document file://lambdapolicy.json
 aws iam create-role --role-name EenyMeenyMinyMoeLambdaRole --assume-role-policy-document file://lambdatrustpolicy.json
+aws iam put-role-policy --role-name EenyMeenyMinyMoeLambdaRole --policy-name LambdaDynamoDBAccessPolicy --policy-document file://lambdapolicy.json
 
 
 {
