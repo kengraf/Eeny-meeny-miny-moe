@@ -38,6 +38,13 @@ Attach policy for DynamoDB access to role
 aws iam put-role-policy --role-name EenyMeenyMinyMoeLambdaRole --policy-name LambdaDynamoDBAccessPolicy --policy-document file://lambdapolicy.json
 ```
 
+### Create API
+```
+aws apigateway create-rest-api --name 'EenyMeenyMinyMoe' > output
+APIID=`cat output | jq -r '.id'`
+aws apigateway create-deployment --rest-api-id $APIID --stage-name prod
+```
+
 ### Clean Up
 Delete DynamoDB table
 ```
