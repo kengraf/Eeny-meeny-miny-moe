@@ -37,11 +37,31 @@ Attach policy for DynamoDB access to role
 ```
 aws iam put-role-policy --role-name EenyMeenyMinyMoeLambdaRole --policy-name LambdaDynamoDBAccessPolicy --policy-document file://lambdapolicy.json
 ```
+Create Lambda
+```
+aws lambda create-function --function-name EenyMeenyMinyMoe \
+    --runtime nodejs14.x \
+    --zip-file function.zip \
+    --role EenyMeenyMinyMoeLambdaRole
+```
 
 ### Create API
 ```
 aws apigateway create-rest-api --name 'EenyMeenyMinyMoe' > output
 APIID=`cat output | jq -r '.id'`
+aws apigateway get-resources --rest-api-id $APIID > output
+PARENTID=`cat output | jq -r '.items[].id'`
+aws apigateway create-resource --rest-api-id $APIID --parent-id $PARENTID --path-part Moe > output
+RESOURCEID=`cat output | jq -r '.id'`
+aws apigateway put-method --rest-api-id $APIID --resource-id $RESOURCEID --http-method GET --authorization-type "NONE"
+aws apigateway put-method-response --rest-api-id $APIID --resource-id $RESOURCEID \
+  --http-method GET --status-code 200
+aws apigateway put-integration --rest-api-id $APIID \
+--resource-id $RESOURCEID --http-method GET --type AWS \
+--integration-http-method GET \
+--uri arn:aws:apigateway:us-west-2:lambda:path//2015-03-31/functions/arn:aws:lambda:us-west-2:123412341234:function:function_name/invocations'
+arn:aws:lambda:us-east-2:788715698479:function:EenyMeenyMinyMoe
+
 aws apigateway create-deployment --rest-api-id $APIID --stage-name prod
 ```
 
