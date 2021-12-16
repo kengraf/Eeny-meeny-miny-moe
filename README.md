@@ -41,8 +41,8 @@ Create Lambda
 ```
 aws lambda create-function --function-name EenyMeenyMinyMoe \
     --runtime nodejs14.x \
-    --zip-file function.zip \
-    --role EenyMeenyMinyMoeLambdaRole
+    --zip-file fileb://function.zip \
+    --role arn:aws:iam::788715698479:role/EenyMeenyMinyMoeLambdaRole
 ```
 
 ### Create API
