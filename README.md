@@ -5,22 +5,24 @@ Motivation is to demonstrate a simple cloud deployment. Cloud is great but, to b
 This example leverages AWS DynamoDB, Lambda, and Cognito.
 
 ### DynamoDB
-Create a new table named `EenyMeanyMinyMoe`
-```aws dynamodb create-table \
-    --table-name EenyMeanyMinyMoe \
+Create a new table named `EenyMeenyMinyMoe`
+```
+aws dynamodb create-table \
+    --table-name EenyMeenyMinyMoe \
     --attribute-definitions AttributeName=Name,AttributeType=S  \
     --key-schema AttributeName=Name,KeyType=HASH  \
     --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
     --tags Key=Owner,Value=Teacher
 ```
     
-Add student records for testing.  We like `Alice, Bob, and Charlie`
+Add student records for testing.  
 ```
 students=("Alice" "Bob" "Charlie")
 for i in "${students[@]}"
 do
    : 
-  aws dynamodb put-item --table-name EenyMeanyMinyMoe --item \
+  aws dynamodb put-item --table-name EenyMeenyMinyMoe --item \
     '{ "Name": {"S": "'$i'"}, "Picked": {"BOOL": false}  }' 
 done
 ```
+
