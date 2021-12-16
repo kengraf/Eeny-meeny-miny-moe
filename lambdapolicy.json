@@ -16,7 +16,7 @@
                 "dynamodb:PutItem",
                 "dynamodb:GetItem"
             ],
-            "Resource": "arn:aws:dynamodb:*:*:*"
+            "Resource": "*"
         }
     ]
 }
