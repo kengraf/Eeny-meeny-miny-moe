@@ -22,7 +22,42 @@ for i in "${students[@]}"
 do
    : 
   aws dynamodb put-item --table-name EenyMeenyMinyMoe --item \
-    '{ "Name": {"S": "'$i'"}, "Picked": {"BOOL": false}  }' 
+    '{ "Name": {"S": "'$i'"}, "Pickable": {"BOOL": true}  }' 
 done
 ```
 
+### LAMBDA
+AWS CLI to create a Lambda function require files for packages, roles, and policies.  The example here assume you have clone this Github repo and have the proper working diectory
+
+Create role for Lambda function to access DynamoDB `NeenyMeenyMinyMoeRole`
+```
+aws iam create-policy --policy-name LambdaDynamoDBAccessPolicy --policy-document file://lambdapolicy.json
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:PutItem",
+                "dynamodb:GetItem"
+            ],
+            "Resource": "arn:aws:dynamodb:*:*:*"
+        }
+    ]
+}
+```
+
+```
+aws iam create-role --role-name NeenyMeenyMinyMoeLambdaRole \
+  --assume-role-policy-document <value>
+```
