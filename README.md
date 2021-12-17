@@ -1,7 +1,7 @@
 # Eeny-meeny-miny-moe
 Random selection of a student to present next in class  
 
-Motivation is to demonstrate a simple cloud deployment. Cloud is great but, to be frank checkmarks on the class roster would be easier.  
+Motivation of this repo is to demonstrate a simple cloud deployment. Cloud is great but to be frank paper and pencil checkmarks on the class roster would be easier.  
 This example leverages AWS DynamoDB, Lambda, and Cognito.
 
 ### DynamoDB
@@ -27,25 +27,32 @@ done
 ```
 
 ### LAMBDA
-AWS CLI to create a Lambda function require files for packages, roles, and policies.  The example here assume you have clone this Github repo and have the proper working diectory
+AWS CLI to create a Lambda function require files for packages, roles, and policies.  The example here assume you have clone this Github repo and are in the proper working diectory
 
 Create role for Lambda function
 ```
-aws iam create-role --role-name EenyMeenyMinyMoeLambdaRole --assume-role-policy-document file://lambdatrustpolicy.json
+aws iam create-role --role-name EenyMeenyMinyMoe \
+    --assume-role-policy-document file://lambdatrustpolicy.json
 ```
 Attach policy for DynamoDB access to role
 ```
-aws iam put-role-policy --role-name EenyMeenyMinyMoeLambdaRole --policy-name LambdaDynamoDBAccessPolicy --policy-document file://lambdapolicy.json
+aws iam put-role-policy --role-name EenyMeenyMinyMoe \
+    --policy-name EenyMeenyMinyMoe \
+    --policy-document file://lambdapolicy.json
 ```
 Create Lambda
 ```
+zip function.zip -xi index.js
+aws iam list-roles \
+    --query 'Roles[?RoleName==`EenyMeenyMinyMoe`].Arn' > output
+ARN=`cat output | cut -d '"'  -f 2 -s`
 aws lambda create-function --function-name EenyMeenyMinyMoe \
-    --runtime nodejs14.x \
+    --runtime nodejs14.x --role $ARN \
     --zip-file fileb://function.zip \
-    --role arn:aws:iam::788715698479:role/EenyMeenyMinyMoeLambdaRole
+    --runtime nodejs14.x --handler exports.handler \
 ```
 
-### Create API
+### API Gateway
 ```
 aws apigateway create-rest-api --name 'EenyMeenyMinyMoe' > output
 APIID=`cat output | jq -r '.id'`
@@ -72,11 +79,19 @@ aws dynamodb delete-table --table-name EenyMeenyMinyMoe
 ```
 Delete Role and Policy
 ```
-aws iam delete-role-policy --role-name EenyMeenyMinyMoeLambdaRole --policy-name LambdaDynamoDBAccessPolicy
+aws iam list-policies --scope Local \
+    --query 'Policies[?PolicyName==`LambdaDynamoDBAccessPolicy`].Arn' > output
+ARN=`cat output | cut -d '"'  -f 2 -s`
+aws iam detach-role-policy --role-name EenyMeenyMinyMoeLambda --policy-arn $ARN
+aws iam delete-role-policy --role-name EenyMeenyMinyMoeLambda --policy-name LambdaDynamoDBAccessPolicy
 aws iam delete-role --role-name EenyMeenyMinyMoeLambdaRole
+aws iam delete-policy  --policy-arn $ARN
 ```
 Delete Lambda function
 ```
+aws lambda list-functions \
+    --query 'Functions[?FunctionName==`EenyMeenyMinyMoe`]'
+aws lambda delete-function --function-name EenyMeenyMinyMoe
 ```
 
 Remove all the resources created
