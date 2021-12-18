@@ -55,20 +55,29 @@ aws lambda create-function --function-name EenyMeenyMinyMoe \
 ### API Gateway
 ```
 aws apigateway create-rest-api --name 'EenyMeenyMinyMoe'
-aws apigateway get-rest-apis --query 'items[?name==`EenyMeenyMinyMoe`].id' > output
-APIID=`cat output | cut -d '"'  -f 2 -s`
-aws apigateway get-resources --rest-api-id $APIID > output
-PARENTID=`cat output | jq -r '.items[0].id'`
-aws apigateway create-resource --rest-api-id $APIID --parent-id $PARENTID --path-part Moe > output
-RESOURCEID=`cat output | jq -r '.id'`
-aws apigateway put-method --rest-api-id $APIID --resource-id $RESOURCEID --http-method GET --authorization-type "NONE"
-aws apigateway put-method-response --rest-api-id $APIID --resource-id $RESOURCEID \
-  --http-method GET --status-code 200
+APIID=`aws apigateway get-rest-apis --output text \
+    --query "items[?name=='EenyMeenyMinyMoe'].id" `
+PARENTID=`aws apigateway get-resources --rest-api-id $APIID \
+    --query 'items[0].id' --output text`
+RESOURCEID=`aws apigateway create-resource --rest-api-id $APIID \
+    --parent-id $PARENTID --path-part Moe \
+    --query "id" --output text`
+```
+Create a GET method for a Lambda-proxy integration
+```
+aws apigateway put-method --rest-api-id $APIID \
+    --resource-id $RESOURCEID --http-method GET \
+    --authorization-type "NONE"
+aws apigateway put-method-response --rest-api-id $APIID \
+    --resource-id $RESOURCEID \
+    --http-method GET --status-code 200
 ARN=`aws lambda get-function --function-name EenyMeenyMinyMoe \
-    --query Configuration.FunctionArn | tr -d '"'`
-URI='arn:aws:apigateway:us-east-2:lambda:path/2015-03-31/functions/'$ARN'/invocations'
+    --query Configuration.FunctionArn --output text`
+REGION=`aws ec2 describe-availability-zones --output text \
+    --query 'AvailabilityZones[0].[RegionName]'`
+URI='arn:aws:apigateway:'$REGION':lambda:path/2015-03-31/functions/'$ARN'/invocations'
 aws apigateway put-integration --rest-api-id $APIID \
-   --resource-id $RESOURCEID --http-method GET --type AWS \
+   --resource-id $RESOURCEID --http-method GET --type AWS_PROXY \
    --integration-http-method GET --uri $URI
 aws apigateway put-integration-response --rest-api-id $APIID \
     --resource-id $RESOURCEID \
