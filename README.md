@@ -26,7 +26,7 @@ do
 done
 ```
 
-### LAMBDA
+### Lambda
 AWS CLI to create a Lambda function require files for packages, roles, and policies.  The example here assume you have clone this Github repo and are in the proper working diectory
 
 Create role for Lambda function
@@ -54,22 +54,30 @@ aws lambda create-function --function-name EenyMeenyMinyMoe \
 
 ### API Gateway
 ```
-aws apigateway create-rest-api --name 'EenyMeenyMinyMoe' > output
-APIID=`cat output | jq -r '.id'`
+aws apigateway create-rest-api --name 'EenyMeenyMinyMoe'
+aws apigateway get-rest-apis --query 'items[?name==`EenyMeenyMinyMoe`].id' > output
+APIID=`cat output | cut -d '"'  -f 2 -s`
 aws apigateway get-resources --rest-api-id $APIID > output
-PARENTID=`cat output | jq -r '.items[].id'`
+PARENTID=`cat output | jq -r '.items[0].id'`
 aws apigateway create-resource --rest-api-id $APIID --parent-id $PARENTID --path-part Moe > output
 RESOURCEID=`cat output | jq -r '.id'`
 aws apigateway put-method --rest-api-id $APIID --resource-id $RESOURCEID --http-method GET --authorization-type "NONE"
 aws apigateway put-method-response --rest-api-id $APIID --resource-id $RESOURCEID \
   --http-method GET --status-code 200
+ARN=`aws lambda get-function --function-name EenyMeenyMinyMoe \
+    --query Configuration.FunctionArn | tr -d '"'`
+URI='arn:aws:apigateway:us-east-2:lambda:path/2015-03-31/functions/'$ARN'/invocations'
 aws apigateway put-integration --rest-api-id $APIID \
---resource-id $RESOURCEID --http-method GET --type AWS \
---integration-http-method GET \
---uri arn:aws:apigateway:us-west-2:lambda:path//2015-03-31/functions/arn:aws:lambda:us-west-2:123412341234:function:function_name/invocations'
-arn:aws:lambda:us-east-2:788715698479:function:EenyMeenyMinyMoe
-
+   --resource-id $RESOURCEID --http-method GET --type AWS \
+   --integration-http-method GET --uri $URI
+aws apigateway put-integration-response --rest-api-id $APIID \
+    --resource-id $RESOURCEID \
+    --http-method GET \
+    --status-code 200 \
+    --selection-pattern "" 
 aws apigateway create-deployment --rest-api-id $APIID --stage-name prod
+
+curl -v https://$APIID.execute-api.us-east-2.amazonaws.com/prod/Moe
 ```
 
 ### Clean Up
@@ -92,6 +100,11 @@ Delete Lambda function
 aws lambda list-functions \
     --query 'Functions[?FunctionName==`EenyMeenyMinyMoe`]'
 aws lambda delete-function --function-name EenyMeenyMinyMoe
+```
+Delete API Gateway
+```
+aws apigateway get-resources --rest-api-id cctgmqw3c5
+aws apigateway get-integration --rest-api-id $APIID --resource-id $PARENTID --http-method Post
 ```
 
 Remove all the resources created
