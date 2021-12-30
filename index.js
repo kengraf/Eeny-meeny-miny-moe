@@ -10,8 +10,8 @@ exports.handler =  async (event, context) => {
   };
 
   try {
-    switch (event.routeKey) {
-      case "GET /Moe":
+    switch (event.path) {
+      case "/":
         var result = await dynamo.scan ({ TableName: 'EenyMeenyMinyMoe', }).promise();
         if (result.Count == 0) {
             body = "Game Over";
