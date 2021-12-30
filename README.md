@@ -60,30 +60,26 @@ aws lambda create-function --function-name EenyMeenyMinyMoe \
     --runtime nodejs14.x --role $ARN \
     --zip-file fileb://function.zip \
     --runtime nodejs14.x --handler index.handler
+aws lambda add-permission \
+    --function-name EenyMeenyMinyMoe \
+    --action lambda:InvokeFunction \
+    --statement-id apigateway \
+    --principal apigateway.amazonaws.com
 ```
 
 ### API Gateway
 ```
-aws apigateway create-rest-api --name 'EenyMeenyMinyMoe'
+aws apigateway create-rest-api --name 'EenyMeenyMinyMoe' \
+    --endpoint-configuration types=REGIONAL
 APIID=`aws apigateway get-rest-apis --output text \
     --query "items[?name=='EenyMeenyMinyMoe'].id" `
 PARENTID=`aws apigateway get-resources --rest-api-id $APIID \
     --query 'items[0].id' --output text`
-aws apigateway create-resource --rest-api-id $APIID \
-    --parent-id $PARENTID --path-part '{Moe}'
-RESOURCEID=`aws apigateway get-resources --rest-api-id $APIID \
-    --query "items[?pathPart=='{Moe}'].id" --output text`
-echo $RESOURCEID
 
-```
-Create a GET method for a Lambda-proxy integration
-```
+# Create a GET method for a Lambda-proxy integration
 aws apigateway put-method --rest-api-id $APIID \
-    --resource-id $RESOURCEID --http-method GET \
+    --resource-id $PARENTID --http-method GET \
     --authorization-type "NONE"
-aws apigateway put-method-response --rest-api-id $APIID \
-    --resource-id $RESOURCEID \
-    --http-method GET --status-code 200
             
 ARN=`aws lambda get-function --function-name EenyMeenyMinyMoe \
     --query Configuration.FunctionArn --output text`
@@ -91,15 +87,27 @@ REGION=`aws ec2 describe-availability-zones --output text \
     --query 'AvailabilityZones[0].[RegionName]'`
 URI='arn:aws:apigateway:'$REGION':lambda:path/2015-03-31/functions/'$ARN'/invocations'
 aws apigateway put-integration --rest-api-id $APIID \
-   --resource-id $RESOURCEID --http-method GET --type AWS_PROXY \
-   --integration-http-method GET --uri $URI
+   --resource-id $PARENTID --http-method GET --type AWS_PROXY \
+   --integration-http-method POST --uri $URI
    
 aws apigateway put-integration-response --rest-api-id $APIID \
-    --resource-id $RESOURCEID --http-method GET \
+    --resource-id $PARENTID --http-method GET \
     --status-code 200 --selection-pattern "" 
 aws apigateway create-deployment --rest-api-id $APIID --stage-name prod
+```
 
-curl -v https://$APIID.execute-api.us-east-2.amazonaws.com/prod/Moe
+Set permission for Gateway to call Lambda
+```
+aws lambda add-permission \
+--function-name EenyMeenyMinyMoe \
+--statement-id AllowGateway \
+--action lambda:InvokeFunction \
+--principal apigateway.amazonaws.com 
+```
+
+Does it work?
+```
+curl -v https://$APIID.execute-api.us-east-2.amazonaws.com/prod/
 ```
 
 ### Clean Up
