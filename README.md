@@ -21,8 +21,8 @@ aws dynamodb create-table \
     --table-name EenyMeenyMinyMoe \
     --attribute-definitions AttributeName=Name,AttributeType=S  \
     --key-schema AttributeName=Name,KeyType=HASH  \
-    --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
-    --tags Key=Owner,Value=Teacher
+    --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+    
 ```
     
 Add friend records for testing.  
@@ -34,6 +34,7 @@ do
   aws dynamodb put-item --table-name EenyMeenyMinyMoe --item \
     '{ "Name": {"S": "'$i'"} }' 
 done
+
 ```
 
 ### Lambda
