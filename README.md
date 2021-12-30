@@ -1,10 +1,20 @@
 # Eeny-meeny-miny-moe
-Random selection of a student to present next in class  
+A child might use this game/process to select from a group of friends.
 
-Motivation of this repo is to demonstrate a simple cloud deployment. Cloud is great but to be frank paper and pencil checkmarks on the class roster would be easier.  
-This example leverages AWS DynamoDB, Lambda, and Cognito.
+Thing of this repo as simple, yet complete, Cloud deployment to replicate that child-like game.
 
-### DynamoDB
+This deployment leverages AWS DynamoDB, Lambda, and Cognito.  Clone this repo and use the Cloud shell to issue the commands.
+```
+git clone https://github.com/kengraf/Eeny-meeny-miny-moe.git
+cd Eeny-meeny-miny-moe
+```
+
+General process
+1) Drop a set of "friend's names" into DynamoDB
+2) Invoke a lambda to pick a friend
+3) Repeat until you run out of friends
+
+### DynamoDB: used to store your friends
 Create a new table named `EenyMeenyMinyMoe`
 ```
 aws dynamodb create-table \
@@ -15,14 +25,14 @@ aws dynamodb create-table \
     --tags Key=Owner,Value=Teacher
 ```
     
-Add student records for testing.  
+Add friend records for testing.  
 ```
-students=("Alice" "Bob" "Charlie")
-for i in "${students[@]}"
+friends=("Alice" "Bob" "Charlie")
+for i in "${friends[@]}"
 do
    : 
   aws dynamodb put-item --table-name EenyMeenyMinyMoe --item \
-    '{ "Name": {"S": "'$i'"}, "Pickable": {"BOOL": true}  }' 
+    '{ "Name": {"S": "'$i'"} }' 
 done
 ```
 
