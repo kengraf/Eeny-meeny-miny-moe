@@ -59,7 +59,7 @@ ARN=`aws iam list-roles --output text \
 aws lambda create-function --function-name EenyMeenyMinyMoe \
     --runtime nodejs14.x --role $ARN \
     --zip-file fileb://function.zip \
-    --runtime nodejs14.x --handler exports.handler
+    --runtime nodejs14.x --handler index.handler
 ```
 
 ### API Gateway
@@ -70,14 +70,10 @@ APIID=`aws apigateway get-rest-apis --output text \
 PARENTID=`aws apigateway get-resources --rest-api-id $APIID \
     --query 'items[0].id' --output text`
 aws apigateway create-resource --rest-api-id $APIID \
-    --parent-id $PARENTID --path-part Moe
+    --parent-id $PARENTID --path-part '{Moe}'
 RESOURCEID=`aws apigateway get-resources --rest-api-id $APIID \
-    --query "items[?pathPart=='Moe'].id" --output text`
+    --query "items[?pathPart=='{Moe}'].id" --output text`
 echo $RESOURCEID
-
-RESOURCEID=`aws apigateway get-resource --rest-api-id $APIID \
-    --parent-id $PARENTID --path-part Moe \
-    --query "id" --output text`
 
 ```
 Create a GET method for a Lambda-proxy integration
@@ -109,6 +105,8 @@ curl -v https://$APIID.execute-api.us-east-2.amazonaws.com/prod/Moe
 ### Clean Up
 ```
 # Delete API Gateway
+APIID=`aws apigateway get-rest-apis --output text \
+    --query "items[?name=='EenyMeenyMinyMoe'].id" `
 aws apigateway get-resources --rest-api-id $APIID
 aws apigateway get-integration --rest-api-id $APIID --resource-id $PARENTID --http-method Post
 
