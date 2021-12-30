@@ -2,7 +2,7 @@ const AWS = require("aws-sdk");
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
-exports.handler = async (event, context) => {
+exports.handler =  async (event, context) => {
   let body;
   let statusCode = 200;
   const headers = {
@@ -11,49 +11,29 @@ exports.handler = async (event, context) => {
 
   try {
     switch (event.routeKey) {
-      case "DELETE /name/{id}":
-        await dynamo
-          .delete({
-            TableName: "EenyMeenyMinyMoe",
-            Key: {
-              Name: event.pathParameters.id
-            }
-          })
-          .promise();
-        body = `Deleted item ${event.pathParameters.id}`;
-        break;
-      case "GET /name/{id}":
-        body = await dynamo
-          .get({
-            TableName: "EenyMeenyMinyMoe",
-            Key: {
-              Name: event.pathParameters.id
-            }
-          })
-          .promise();
-        break;
-      case "GET /next":
-        body = await dynamo.scan({ TableName: "EenyMeenyMinyMoe" }).promise();
-        break;
-      case "PUT /names":
-        let requestJSON = JSON.parse(event.body);
-        await dynamo
-          .put({
-            TableName: "EenyMeenyMinyMoe",
-            Item: {
-              Name: requestJSON.name,
-              Pickable: true
-            }
-          })
-          .promise();
-        body = `Put item ${requestJSON.id}`;
+      case "GET /Moe":
+        var result = await dynamo.scan ({ TableName: 'EenyMeenyMinyMoe', }).promise();
+        if (result.Count == 0) {
+            body = "Game Over";
+            break;
+        }
+        var picked = Math.floor(Math.random() * result.Count);
+        body = result.Items[picked].Name;
+        await dynamo.delete({
+          TableName: "EenyMeenyMinyMoe",
+          Key: { Name: body },
+          ReturnValues: 'ALL_OLD',
+         })
+          .promise()
+         .then(data => console.log(data.Attributes))
+        .catch(console.error); 
         break;
       default:
         throw new Error(`Unsupported route: "${event.routeKey}"`);
     }
   } catch (err) {
     statusCode = 400;
-    body = err.message;
+    body = JSON.stringify(err.message);
   } finally {
     body = JSON.stringify(body);
   }
