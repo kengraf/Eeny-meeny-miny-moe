@@ -77,9 +77,9 @@ PARENTID=`aws apigateway get-resources --rest-api-id $APIID \
     --query 'items[0].id' --output text`
 
 # Create a GET method for a Lambda-proxy integration
-aws apigateway put-method --rest-api-id $APIID \
+METHODID='aws apigateway put-method --rest-api-id $APIID \
     --resource-id $PARENTID --http-method GET \
-    --authorization-type "NONE"
+    --authorization-type "NONE"'
             
 ARN=`aws lambda get-function --function-name EenyMeenyMinyMoe \
     --query Configuration.FunctionArn --output text`
@@ -110,8 +110,31 @@ Does it work?
 curl -v https://$APIID.execute-api.us-east-2.amazonaws.com/prod/
 ```
 
+### Cognito: For access control
+```
+aws cognito-idp create-user-pool --pool-name EenyMeenyMinyMoe
+ARN=#        "Arn": "arn:aws:cognito-idp:us-east-2:788715698479:userpool/us-east-2_hDMsy6Ukh"
+aws apigateway create-authorizer --rest-api-id $APIID \
+    --name 'EenyMeenyMinyMoe' --type COGNITO_USER_POOLS \
+    --provider-arns $ARN \
+    --identity-source 'method.request.header.Authorization' \
+    --authorizer-result-ttl-in-seconds 300
+    
+aws apigateway test-invoke-authorizer --rest-api-id $APIID --authorizer-id jhp214 --headers Authorization='Name=Moe,Password=Moe-1234'
+POST https://moe.auth.us-east-2.amazoncognito.com/oauth2/token >
+                           Content-Type='application/x-www-form-urlencoded'&
+                           Authorization=Basic TW9lOk1vZS0xMjM0Cg==
+                           grant_type=client_credentials
+                           &
+                           scope={resourceServerIdentifier1}/{scope1} {resourceServerIdentifier2}/{scope2}
+                    
+```
+
 ### Clean Up
 ```
+# Delete Cognito user pool
+aws cognito-idp delete-user-pool --pool-name EenyMeenyMinyMoe
+
 # Delete API Gateway
 APIID=`aws apigateway get-rest-apis --output text \
     --query "items[?name=='EenyMeenyMinyMoe'].id" `
