@@ -34,8 +34,6 @@ exports.handler =  async (event, context) => {
   } catch (err) {
     statusCode = 400;
     body = JSON.stringify(err.message);
-  } finally {
-    body = JSON.stringify(body);
   }
 
   return {
