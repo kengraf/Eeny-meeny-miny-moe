@@ -1,9 +1,9 @@
 # Eeny-meeny-miny-moe
 A child might use this game/process to select from a group of friends.
 
-Thing of this repo as simple, yet complete, Cloud deployment to replicate that child-like game.
+We are using this repo to learn about a basic Cloud deployment.
 
-This deployment leverages AWS DynamoDB, Lambda, and Cognito.  Clone this repo and use the Cloud shell to issue the commands.
+This deployment leverages a database tier (AWS DynamoDB), application (Lambda), and web front end (API Gateway).  Clone this repo and use the Cloud shell to issue the commands.
 ```
 git clone https://github.com/kengraf/Eeny-meeny-miny-moe.git
 cd Eeny-meeny-miny-moe
@@ -15,8 +15,8 @@ General process
 3) Repeat until you run out of friends
 
 ### DynamoDB: used to store your friends
-Create a new table named `EenyMeenyMinyMoe`
 ```
+# Create a new table named `EenyMeenyMinyMoe`
 aws dynamodb create-table \
     --table-name EenyMeenyMinyMoe \
     --attribute-definitions AttributeName=Name,AttributeType=S  \
@@ -25,8 +25,8 @@ aws dynamodb create-table \
     
 ```
     
-Add friend records for testing.  
 ```
+# Add friend records for testing.  
 friends=("Alice" "Bob" "Charlie")
 for i in "${friends[@]}"
 do
@@ -38,28 +38,31 @@ done
 ```
 
 ### Lambda: used to select a friend
-AWS CLI to create a Lambda function require files for packages, roles, and policies.  The example here assume you have clone this Github repo and are in the proper working diectory
+AWS CLI to create a Lambda function require files for packages, roles, and policies.  The example here assumes you have cloned this Github repo and are in the proper working diectory
 
-Create role for Lambda function
 ```
+# Create role for Lambda function
 aws iam create-role --role-name EenyMeenyMinyMoe \
     --assume-role-policy-document file://lambdatrustpolicy.json
 ```
-Attach policy for DynamoDB access to role
 ```
+# Attach policy for DynamoDB access to role
 aws iam put-role-policy --role-name EenyMeenyMinyMoe \
     --policy-name EenyMeenyMinyMoe \
     --policy-document file://lambdapolicy.json
-```
-Create Lambda
-```
-zip function.zip -xi index.js
 ARN=`aws iam list-roles --output text \
     --query "Roles[?RoleName=='EenyMeenyMinyMoe'].Arn" `
+```
+```
+# Create Lambda
+zip function.zip -xi index.js
 aws lambda create-function --function-name EenyMeenyMinyMoe \
     --runtime nodejs14.x --role $ARN \
     --zip-file fileb://function.zip \
     --runtime nodejs14.x --handler index.handler
+```
+```
+# Give the API Gateway permissin to invoke the Lambda
 aws lambda add-permission \
     --function-name EenyMeenyMinyMoe \
     --action lambda:InvokeFunction \
@@ -108,26 +111,6 @@ aws lambda add-permission \
 Does it work?
 ```
 curl -v https://$APIID.execute-api.us-east-2.amazonaws.com/prod/
-```
-
-### Cognito: For access control
-```
-aws cognito-idp create-user-pool --pool-name EenyMeenyMinyMoe
-ARN=#        "Arn": "arn:aws:cognito-idp:us-east-2:788715698479:userpool/us-east-2_hDMsy6Ukh"
-aws apigateway create-authorizer --rest-api-id $APIID \
-    --name 'EenyMeenyMinyMoe' --type COGNITO_USER_POOLS \
-    --provider-arns $ARN \
-    --identity-source 'method.request.header.Authorization' \
-    --authorizer-result-ttl-in-seconds 300
-    
-aws apigateway test-invoke-authorizer --rest-api-id $APIID --authorizer-id jhp214 --headers Authorization='Name=Moe,Password=Moe-1234'
-POST https://moe.auth.us-east-2.amazoncognito.com/oauth2/token >
-                           Content-Type='application/x-www-form-urlencoded'&
-                           Authorization=Basic TW9lOk1vZS0xMjM0Cg==
-                           grant_type=client_credentials
-                           &
-                           scope={resourceServerIdentifier1}/{scope1} {resourceServerIdentifier2}/{scope2}
-                    
 ```
 
 ### Clean Up
