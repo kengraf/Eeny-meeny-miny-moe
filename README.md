@@ -129,6 +129,8 @@ aws iam delete-role --role-name EenyMeenyMinyMoe
 ```
 
 ### Extra credit
+- Error handling
+- Monitoring and alerts
 - Add authorization to the API using Cognito
 - Use Route53 to provide a friendly domain name for the APIGateway
 - Expand the API to allow adding and removing names
