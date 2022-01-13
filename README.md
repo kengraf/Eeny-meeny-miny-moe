@@ -72,18 +72,22 @@ aws lambda add-permission \
 
 ### API Gateway
 ```
+# Create the Gateway
 aws apigateway create-rest-api --name 'EenyMeenyMinyMoe' \
     --endpoint-configuration types=REGIONAL
+```
+
+```
+# Create a GET method for a Lambda-proxy integration
 APIID=`aws apigateway get-rest-apis --output text \
     --query "items[?name=='EenyMeenyMinyMoe'].id" `
 PARENTID=`aws apigateway get-resources --rest-api-id $APIID \
     --query 'items[0].id' --output text`
-
-# Create a GET method for a Lambda-proxy integration
-METHODID='aws apigateway put-method --rest-api-id $APIID \
+aws apigateway put-method --rest-api-id $APIID \
     --resource-id $PARENTID --http-method GET \
-    --authorization-type "NONE"'
+    --authorization-type "NONE"
             
+# Create integration with Lambda
 ARN=`aws lambda get-function --function-name EenyMeenyMinyMoe \
     --query Configuration.FunctionArn --output text`
 REGION=`aws ec2 describe-availability-zones --output text \
@@ -92,10 +96,11 @@ URI='arn:aws:apigateway:'$REGION':lambda:path/2015-03-31/functions/'$ARN'/invoca
 aws apigateway put-integration --rest-api-id $APIID \
    --resource-id $PARENTID --http-method GET --type AWS_PROXY \
    --integration-http-method POST --uri $URI
-   
 aws apigateway put-integration-response --rest-api-id $APIID \
     --resource-id $PARENTID --http-method GET \
     --status-code 200 --selection-pattern "" 
+
+# Push out deployment
 aws apigateway create-deployment --rest-api-id $APIID --stage-name prod
 ```
 
