@@ -9,7 +9,7 @@ git clone https://github.com/kengraf/Eeny-meeny-miny-moe.git
 cd Eeny-meeny-miny-moe
 ```
 
-General process
+General game process
 1) Drop a set of "friend's names" into DynamoDB
 2) Invoke a lambda to pick a friend
 3) Repeat until you run out of friends
@@ -99,7 +99,7 @@ aws apigateway put-integration-response --rest-api-id $APIID \
 aws apigateway create-deployment --rest-api-id $APIID --stage-name prod
 ```
 
-Does it work?
+### Run the game.  Each refresh will return a different name.
 ```
 curl -v https://$APIID.execute-api.us-east-2.amazonaws.com/prod/
 ```
@@ -123,5 +123,7 @@ aws iam delete-role-policy --role-name EenyMeenyMinyMoe \
 aws iam delete-role --role-name EenyMeenyMinyMoe 
 ```
 
-Remove all the resources created
-
+### Extra credit
+- Add authorization to the API using Cognito
+- Use Route53 to provide a friendly domain name for the APIGateway
+- Expand the API to allow addign and removing names
