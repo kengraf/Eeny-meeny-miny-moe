@@ -38,7 +38,7 @@ done
 ```
 
 ### Lambda: used to select a friend
-AWS CLI to create a Lambda function require files for packages, roles, and policies.  The example here assumes you have cloned this Github repo and are in the proper working diectory
+AWS CLI to create a Lambda function require files for packages, roles, and policies.  The example here assumes you have cloned this Github repo and are in the proper working directory
 
 ```
 # Create role for Lambda function
@@ -126,4 +126,4 @@ aws iam delete-role --role-name EenyMeenyMinyMoe
 ### Extra credit
 - Add authorization to the API using Cognito
 - Use Route53 to provide a friendly domain name for the APIGateway
-- Expand the API to allow addign and removing names
+- Expand the API to allow adding and removing names
