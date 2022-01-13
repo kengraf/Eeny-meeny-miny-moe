@@ -62,11 +62,11 @@ aws lambda create-function --function-name EenyMeenyMinyMoe \
     --runtime nodejs14.x --handler index.handler
 ```
 ```
-# Give the API Gateway permissin to invoke the Lambda
+# Give the API Gateway permission to invoke the Lambda
 aws lambda add-permission \
     --function-name EenyMeenyMinyMoe \
     --action lambda:InvokeFunction \
-    --statement-id apigateway \
+    --statement-id AllowGateway \
     --principal apigateway.amazonaws.com
 ```
 
@@ -99,30 +99,17 @@ aws apigateway put-integration-response --rest-api-id $APIID \
 aws apigateway create-deployment --rest-api-id $APIID --stage-name prod
 ```
 
-Set permission for Gateway to call Lambda
-```
-aws lambda add-permission \
---function-name EenyMeenyMinyMoe \
---statement-id AllowGateway \
---action lambda:InvokeFunction \
---principal apigateway.amazonaws.com 
-```
-
 Does it work?
 ```
 curl -v https://$APIID.execute-api.us-east-2.amazonaws.com/prod/
 ```
 
-### Clean Up
+### Clean Up by removing all the resources created
 ```
-# Delete Cognito user pool
-aws cognito-idp delete-user-pool --pool-name EenyMeenyMinyMoe
-
 # Delete API Gateway
 APIID=`aws apigateway get-rest-apis --output text \
     --query "items[?name=='EenyMeenyMinyMoe'].id" `
-aws apigateway get-resources --rest-api-id $APIID
-aws apigateway get-integration --rest-api-id $APIID --resource-id $PARENTID --http-method Post
+aws apigateway delete-rest-api --rest-api-id $APIID
 
 # Delete Lambda function
 aws lambda delete-function --function-name EenyMeenyMinyMoe
@@ -131,14 +118,9 @@ aws lambda delete-function --function-name EenyMeenyMinyMoe
 aws dynamodb delete-table --table-name EenyMeenyMinyMoe
 
 # Delete Role and Policy
-ARN=`aws iam list-policies --scope Local --output text \
-    --query "Policies[?PolicyName=='LambdaDynamoDBAccessPolicy'].Arn" `
-aws iam detach-role-policy --role-name EenyMeenyMinyMoeLambda \
-    --policy-arn $ARN
-aws iam delete-role-policy --role-name EenyMeenyMinyMoeLambda \
-    --policy-name LambdaDynamoDBAccessPolicy
-aws iam delete-role --role-name EenyMeenyMinyMoeLambdaRole
-aws iam delete-policy  --policy-arn $ARN
+aws iam delete-role-policy --role-name EenyMeenyMinyMoe \
+    --policy-name EenyMeenyMinyMoe
+aws iam delete-role --role-name EenyMeenyMinyMoe 
 ```
 
 Remove all the resources created
