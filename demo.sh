@@ -1,5 +1,5 @@
 # Add friend records for testing.  
-friends=("Ryan.Foley" "Ben.Grimes" "Conor.Harrington" "Scott.Kitterman" "Connor.LaRocque" "Justin.Moening" "Nick.Moreschi" "James.Msaddi" "Beau.Ramsey" "Brock.Therrien" "Ryan.Tremblay")
+friends=("alice" "bob" "charlie")
 for i in "${friends[@]}"
 do
         : 
