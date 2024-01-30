@@ -1,9 +1,10 @@
 # Eeny-meeny-miny-moe
 A child might use this game/process to select from a group of friends.
 
-We are using this repo to learn about a basic Cloud deployment.
+This deployment leverages a database tier (AWS DynamoDB), application (Lambda), and web front end (API Gateway).  
 
-This deployment leverages a database tier (AWS DynamoDB), application (Lambda), and web front end (API Gateway).  Clone this repo and use the Cloud shell to issue the commands.
+We are using this repo to learn about a basic Cloud deployment using the AWS CLI. 
+ Clone this repo and use the Cloud shell to issue the commands.
 ```
 git clone https://github.com/kengraf/Eeny-meeny-miny-moe.git
 cd Eeny-meeny-miny-moe
@@ -128,9 +129,10 @@ aws iam delete-role-policy --role-name EenyMeenyMinyMoe \
 aws iam delete-role --role-name EenyMeenyMinyMoe 
 ```
 
-### Extra credit
+### Project behaviors suggestions for a passing grade
+- Single button for deploy, takedown, reset
 - Error handling
-- Monitoring and alerts
+- Monitoring and alerts (all 3 tiers)
 - Add authorization to the API using Cognito
 - Use Route53 to provide a friendly domain name for the APIGateway
 - Expand the API to allow adding and removing names
