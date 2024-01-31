@@ -130,19 +130,20 @@ aws iam delete-role --role-name EenyMeenyMinyMoe
 ```
 
 ### Project behaviors suggestions for a passing grade
-- Single button for deploy, takedown, reset
-- Resource tagging
+- Single button for deploy, takedown, reset  
+- Resource tagging  
 - Error handling
-- Monitoring and alerts (all 3 tiers)
-- Add authorization to the API using Cognit
-- Use Route53 to provide a friendly domain name for the APIGateway
-- Expand the API to allow adding and removing names
+- Fixed disjointed and poorly named IAM resources
+- Monitoring and alerts (all 3 tiers)  
+- Add authorization to the API using Cognito   
+- Use Route53 to provide a friendly domain name for the APIGateway  
+- Expand the API to allow adding and removing names  
 
 ### Project suggestions for Well-Architected at scale
-*Security:* A role needs to be defined to manage all IAM requests.
-*Reliability:* Implement parallel and/or multi-region deployments.
-*Performance:* When adding a couple dozen new user names a 10 second was observed.  This should be investigated.
-*Cost Optimization:*  No real idea of what loads are for 1M users.  Should build out a smaller test for 1K users (staying within free tier) and extrapolate.
-*Operation Excellence:*  Tagging, IAM controls, improve this repo.
+*Security:* A role needs to be defined to manage all IAM requests.  
+*Reliability:* Implement parallel and/or multi-region deployments.  
+*Performance:* When adding a couple dozen new user names a 10 second was observed.  This should be investigated.  
+*Cost Optimization:*  No real idea of what loads are for 1M users.  Should build out a smaller test for 1K users (staying within free tier) and extrapolate.  
+*Operation Excellence:*  Tagging, IAM controls, improve this repo.  
 
 
