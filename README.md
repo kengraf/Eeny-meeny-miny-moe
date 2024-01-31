@@ -1,7 +1,7 @@
 # Eeny-meeny-miny-moe
 A child might use this game/process to select from a group of friends.
 
-This deployment leverages a database tier (AWS DynamoDB), application (Lambda), and web front end (API Gateway).  
+This example deployment for my IT718 class; leverages a database tier (AWS DynamoDB), application (Lambda), and web front end (API Gateway).  
 
 We are using this repo to learn about a basic Cloud deployment using the AWS CLI. 
  Clone this repo and use the Cloud shell to issue the commands.
@@ -131,8 +131,18 @@ aws iam delete-role --role-name EenyMeenyMinyMoe
 
 ### Project behaviors suggestions for a passing grade
 - Single button for deploy, takedown, reset
+- Resource tagging
 - Error handling
 - Monitoring and alerts (all 3 tiers)
-- Add authorization to the API using Cognito
+- Add authorization to the API using Cognit
 - Use Route53 to provide a friendly domain name for the APIGateway
 - Expand the API to allow adding and removing names
+
+### Project suggestions for Well-Architected at scale
+*Security:* A role needs to be defined to manage all IAM requests.
+*Reliability:* Implement parallel and/or multi-region deployments.
+*Performance:* When adding a couple dozen new user names a 10 second was observed.  This should be investigated.
+*Cost Optimization:*  No real idea of what loads are for 1M users.  Should build out a smaller test for 1K users (staying within free tier) and extrapolate.
+*Operation Excellence:*  Tagging, IAM controls, improve this repo.
+
+
