@@ -20,6 +20,7 @@ General game process
 # Create a new table named `EenyMeenyMinyMoe`
 aws dynamodb create-table \
     --table-name EenyMeenyMinyMoe \
+    --tags Key=Owner,Value=Eeny \
     --attribute-definitions AttributeName=Name,AttributeType=S  \
     --key-schema AttributeName=Name,KeyType=HASH  \
     --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
@@ -44,6 +45,7 @@ AWS CLI to create a Lambda function require files for packages, roles, and polic
 ```
 # Create role for Lambda function
 aws iam create-role --role-name EenyMeenyMinyMoe \
+    --tags Key=Owner,Value=Eeny \
     --assume-role-policy-document file://lambdatrustpolicy.json
 ```
 ```
@@ -58,6 +60,7 @@ ARN=`aws iam list-roles --output text \
 # Create Lambda
 zip function.zip -xi index.js
 aws lambda create-function --function-name EenyMeenyMinyMoe \
+    --tags Key=Owner,Value=Eeny \
     --runtime nodejs14.x --role $ARN \
     --zip-file fileb://function.zip \
     --runtime nodejs14.x --handler index.handler
@@ -75,6 +78,7 @@ aws lambda add-permission \
 ```
 # Create the Gateway
 aws apigateway create-rest-api --name 'EenyMeenyMinyMoe' \
+    --tags Key=Owner,Value=Eeny \
     --endpoint-configuration types=REGIONAL
 ```
 
