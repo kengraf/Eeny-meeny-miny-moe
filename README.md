@@ -20,7 +20,6 @@ General game process
 # Create a new table named `EenyMeenyMinyMoe`
 aws dynamodb create-table \
     --table-name EenyMeenyMinyMoe \
-    --tags Key=Owner,Value=Eeny \
     --attribute-definitions AttributeName=Name,AttributeType=S  \
     --key-schema AttributeName=Name,KeyType=HASH  \
     --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
