@@ -21,7 +21,7 @@ aws s3 cp friends s3://${S3BUCKET}
 echo "Creating stack..."
 # upload cf stack
 STACK_ID=`aws cloudformation deploy --stack-name ${STACK} \
-  --template-body file://cfStack2025.yaml --capabilities CAPABILITY_NAMED_IAM \
+  --template-file eeny2025.yaml --capabilities CAPABILITY_NAMED_IAM \
   --tags Key=DeployName,Value=${STACK} \
   --region ${REGION} --query "StackId" --output text`
 
