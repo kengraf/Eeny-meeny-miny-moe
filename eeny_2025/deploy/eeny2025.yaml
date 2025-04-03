@@ -71,6 +71,14 @@ Resources:
       AuthType: NONE
       TargetFunctionArn: !GetAtt FetchFunction.Arn
 
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunctionUrl
+      FunctionName: !Ref FetchFunction
+      Principal: "*"
+      StatementId: AllowPublicAccess
+
   SNSHealthTopic:
     Type: AWS::SNS::Topic
     Properties:
