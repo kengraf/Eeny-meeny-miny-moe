@@ -1,0 +1,18 @@
+[
+  {
+    "ParameterKey": "DeployName",
+    "ParameterValue": "eeny-redo"
+  },
+  {
+    "ParameterKey": "DnsName",
+    "ParameterValue": "YOUR-DOMAIN-NAME"
+  },
+  {
+    "ParameterKey": "CustomSubdomainName",
+    "ParameterValue": "eeny-redo.YOUR-DOMAIN-NAME"
+  },
+  {
+    "ParameterKey": "S3bucketName",
+    "ParameterValue": "YOUR-BUCKET-NAME"
+  }
+]

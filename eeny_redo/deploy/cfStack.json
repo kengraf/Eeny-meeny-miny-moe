@@ -1,0 +1,181 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters" : {
+      "S3bucketName" : { "Type" : "String" },
+      "DnsName" : { "Type" : "String" },
+      "DeployName" : { "Type" : "String" },
+      "CustomSubdomainName" : { "Type" : "String" }
+  },
+  "Resources": {
+    "LambdaRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": {"Fn::Sub" : "${DeployName}-lambda"},
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": {"Fn::Sub" : "${DeployName}lambda"},
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": "sns:*",
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": "dynamodb:*",
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "Table": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": {"Fn::Sub" : "${DeployName}"},
+        "BillingMode": "PAY_PER_REQUEST",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "Name",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "Name",
+            "KeyType": "HASH"
+          }
+        ]
+      }
+    },
+    "ReloadFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "FunctionName": {"Fn::Sub" : "${DeployName}-reload"},
+        "Runtime": "nodejs20.x",
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole",
+            "Arn"
+          ]
+        },
+        "Code": {
+          "S3Bucket": {"Fn::Sub" : "${S3bucketName}" },
+          "S3Key": "reload.zip" 
+        }
+      }
+    },
+    "FetchFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "FunctionName": {"Fn::Sub" : "${DeployName}-fetch"},
+        "Runtime": "nodejs20.x",
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole",
+            "Arn"
+          ]
+        },
+        "Code": {
+          "S3Bucket": {"Fn::Sub" : "${S3bucketName}" },
+          "S3Key": "fetch.zip"
+        },
+        "MemorySize": 512
+      }
+    },
+    "SnsTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "DisplayName": {"Fn::Sub" : "${DeployName}-reload"}
+      }
+    },
+    "SnsSubscription": {
+      "Type": "AWS::SNS::Subscription",
+      "Properties": {
+        "Protocol": "lambda",
+        "TopicArn": {
+          "Ref": "SnsTopic"
+        },
+        "Endpoint": {
+          "Fn::GetAtt": [
+            "ReloadFunction",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "Api": {
+      "Type": "AWS::ApiGatewayV2::Api",
+      "Properties": {
+        "Name": {"Fn::Sub" : "${DeployName}-Api"},
+        "ProtocolType": "HTTP",
+        "Target": {
+          "Fn::GetAtt": [
+            "FetchFunction",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "Integration": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": { "Ref": "Api" },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::GetAtt": [
+            "FetchFunction",
+            "Arn"
+          ]
+        },
+        "PayloadFormatVersion": "1.0"
+      }
+    },
+    "LambdaSNSPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "DependsOn" : ["FetchFunction", "ReloadFunction"],
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {"Fn::Sub" : "${DeployName}-reload"},
+        "Principal": "sns.amazonaws.com",
+        "SourceArn": { "Ref": "SnsTopic" }
+      }
+    },
+    "LambdaAPIGatewayPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "DependsOn" : ["FetchFunction", "ReloadFunction"],
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {"Fn::Sub" : "${DeployName}-fetch"},
+        "Principal": "apigateway.amazonaws.com"
+      }
+    }
+  }
+}
