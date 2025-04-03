@@ -7,7 +7,10 @@ Parameters:
   DeployName:
     Type: String
     Default: "Eeny2025"
-
+  Email:
+    Type: String
+    Default: "your.email@example.com"
+    
 Resources:
   LambdaRole:
     Type: AWS::IAM::Role
@@ -78,7 +81,7 @@ Resources:
     Properties:
       TopicArn: !Ref SNSHealthTopic
       Protocol: email
-      Endpoint: "your-email@example.com"  # Change to your email
+      Endpoint: !Sub "${Email}"
 
   SNSHealthPolicy:
     Type: AWS::SNS::TopicPolicy
