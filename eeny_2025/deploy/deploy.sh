@@ -16,7 +16,7 @@ fi
 echo "Load lambda and friends to S3 bucket..."
 zip eeny.zip -xi eeny.py
 aws s3 cp eeny.zip s3://${S3BUCKET}
-aws s3 cp friends s3://${S#BUCKET}
+aws s3 cp friends s3://${S3BUCKET}
 
 echo "Creating stack..."
 # upload cf stack
