@@ -7,10 +7,18 @@ sns = boto3.client("sns")
 bucket_name = os.environ['BUCKET_NAME'] # set by cloudformation
 
 def reload_data():
+    # nuke the curremt content
+    response = dynamodb.scan(TableName='eeny2025')
+    items = response.get("Items", [])
+    for item in items:
+        key = {k: v for k, v in item.items()}
+        dynamodb.delete_item(TableName='eeny2025', Key=key)
+        
+    # Read the friends file and populate
     response = s3.get_object(Bucket=bucket_name, Key="friends")
     lines = response["Body"].read().decode("utf-8").splitlines()
     for l in lines:
-        dynamo.put_item( TableName='Eeny_2025', Item={"name": line}) 
+        dynamo.put_item( TableName='eeny2025', Item={"name": line}) 
     
 def lambda_handler(event, context):
     status_code = 200
@@ -21,7 +29,7 @@ def lambda_handler(event, context):
         if event.get("rawPath") == "/":
             reload_data()
         else if event.get("rawPath") == "/":
-            result = dynamo.scan(TableName='Eeny_2025')
+            result = dynamo.scan(TableName='eeny2025')
             
             if result.get("Count", 0) == 0:
                 # Fetch SNS topics
