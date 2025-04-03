@@ -52,7 +52,7 @@ Resources:
     Properties:
       FunctionName: !Sub "${DeployName}"
       Runtime: python3.13
-      Handler: index.handler
+      Handler: "eeny.lambda_handler"
       Role: !GetAtt LambdaRole.Arn
       Code:
         S3Bucket: !Sub "${S3bucketName}"
