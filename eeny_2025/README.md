@@ -1,7 +1,7 @@
 # EENY 2025
 
 ### What changed
-[PDF of presentation to class)[./pillars/eeny_2025.pdf)
+[PDF of presentation to class](./pillars/eeny_2025.pdf)
 
 ### 1) Clone
 ```
