@@ -5,6 +5,7 @@
 STACK=eeny2025
 S3BUCKET=eeny-2025
 REGION=us-east-2
+EMAIL="your.email@example.com"
 
 if aws s3api head-bucket --bucket "$S3BUCKET" --region ${REGION} 2>/dev/null; then
   echo "Bucket '$S3BUCKET' exists."
@@ -22,6 +23,7 @@ echo "Creating stack..."
 # upload cf stack
 STACK_ID=`aws cloudformation deploy --stack-name ${STACK} \
   --template-file eeny2025.yaml --capabilities CAPABILITY_NAMED_IAM \
+   --parameter-overrides  S3BUCKET=$S3BUCKET EMAIL=${EMAIL}
   --region ${REGION} --query "StackId" --output text`
 
 aws cloudformation list-exports --query "Exports[?Name=='EENY2025_URL'].Value" --output text
