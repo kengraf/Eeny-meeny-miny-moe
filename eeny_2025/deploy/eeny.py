@@ -4,7 +4,14 @@ import random
 
 dynamo = boto3.client("dynamodb")
 sns = boto3.client("sns")
+bucket_name = os.environ['BUCKET_NAME'] # set by cloudformation
 
+def reload_data():
+    response = s3.get_object(Bucket=bucket_name, Key="friends")
+    lines = response["Body"].read().decode("utf-8").splitlines()
+    for l in lines:
+        dynamo.put_item( TableName='Eeny_2025', Item={"name": line}) 
+    
 def lambda_handler(event, context):
     status_code = 200
     headers = {"Content-Type": "application/json"}
@@ -12,11 +19,14 @@ def lambda_handler(event, context):
     
     try:
         if event.get("rawPath") == "/":
-            result = dynamo.scan(TableName='eeny-redo')
+            reload_data()
+        else if event.get("rawPath") == "/":
+            result = dynamo.scan(TableName='Eeny_2025')
             
             if result.get("Count", 0) == 0:
                 # Fetch SNS topics
                 body = "Game Over"
+                reload_data()
             else:
                 picked = random.randint(0, result["Count"] - 1)
                 body = result["Items"][picked]["Name"]["S"]  # Extract the name
