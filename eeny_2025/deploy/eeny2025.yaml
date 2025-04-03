@@ -6,7 +6,7 @@ Parameters:
     Default: "eeny-2025"
   DeployName:
     Type: String
-    Default: "Eeny2025"
+    Default: "eeny2025"
   Email:
     Type: String
     Default: "your.email@example.com"
@@ -76,6 +76,7 @@ Resources:
     Properties:
       Action: lambda:InvokeFunctionUrl
       FunctionName: !Ref FetchFunction
+      FunctionUrlAuthType: NONE
       Principal: "*"
           
   SNSHealthTopic:
