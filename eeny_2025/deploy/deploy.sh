@@ -3,7 +3,7 @@
 # Edit the following parameters to suit your needs.  
 # The S3 bucket needs to be globally unique
 STACK=eeny2025
-S3BUCKET=eeny-2025
+S3BUCKET=eeny2025
 REGION=us-east-2
 EMAIL="your.email@example.com"
 
@@ -15,8 +15,8 @@ else
 fi
     
 echo "Load lambda and friends to S3 bucket..."
-zip eeny.zip -xi eeny.py
-aws s3 cp eeny.zip s3://${S3BUCKET}
+zip eeny2025.zip -xi eeny2025.py
+aws s3 cp eeny2025.zip s3://${S3BUCKET}
 aws s3 cp friends s3://${S3BUCKET}
 
 echo "Creating stack..."
