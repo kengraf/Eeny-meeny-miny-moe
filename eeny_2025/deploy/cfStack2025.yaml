@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
   S3bucketName:
     Type: String
-    Default: "eeny5-b8266bd713"
+    Default: "eeny-2025"
   DeployName:
     Type: String
     Default: "Eeny2025"
@@ -50,11 +50,72 @@ Resources:
   FetchFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub "${DeployName}-fetch2025"
+      FunctionName: !Sub "${DeployName}"
       Runtime: python3.13
       Handler: index.handler
       Role: !GetAtt LambdaRole.Arn
       Code:
         S3Bucket: !Sub "${S3bucketName}"
-        S3Key: "fetch2025.zip"
+        S3Key: "eeny.zip"
       MemorySize: 256
+
+  FetchFunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      AuthType: NONE
+      TargetFunctionArn: !GetAtt FetchFunction.Arn
+
+  SNSHealthTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: AWSHealthNotifications
+
+  SNSHealthSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref SNSHealthTopic
+      Protocol: email
+      Endpoint: "your-email@example.com"  # Change to your email
+
+  SNSHealthPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref SNSHealthTopic
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: health.amazonaws.com
+            Action: SNS:Publish
+            Resource: !Ref SNSHealthTopic
+
+  EventBridgeHealthRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: AWSHealthDynamoDBAlerts
+      EventPattern:
+        source:
+          - "aws.health"
+        detail-type:
+          - "AWS Health Event"
+        detail:
+          service:
+            - "DynamoDB"
+          region:
+            - "${AWS::REGION}"
+      State: ENABLED
+      Targets:
+        - Id: "1"
+          Arn: !Ref SNSHealthTopic
+
+Outputs:
+  FetchFunctionUrl:
+    Description: "The URL of the Lambda function"
+    Value: !GetAtt FetchFunctionUrl.FunctionUrl
+    Export:
+      Name: !Sub "${DeployName}-FetchFunctionUrl"
+  SNSHealthTopicArn:
+    Description: "SNS Topic ARN for AWS Health Notifications"
+    Value: !Ref SNSHealthTopic
