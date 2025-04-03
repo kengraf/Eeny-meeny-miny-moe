@@ -13,8 +13,8 @@ The IT718 class focus is on being well-architected.  The implementation has evol
 
 1) /original:  Deployment is just a long sequence of CLI commands.  It proved to be fragile in deployment.
 2) /eeny_redo:  Deployment based on CloudFormation.  The ./pillars subdirectory provides the well-architected actions that were implement to improve on the original version.
-3) /eeny_2025:  This round of well-architected review resulted in changes to the architecture for performance and simplification.
+3) /eeny_2025:  This round of well-architected review resulted in changes to the architecture for performance, stability, and simplification.
 
 After cloning this repo, the README in each version will provide the steps needed to deploy.
 
-To constant evolution!
+To constant improvement!
