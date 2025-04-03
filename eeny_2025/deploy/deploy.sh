@@ -3,8 +3,8 @@
 # Edit the following parameters to suit your needs.  
 # The S3 bucket needs to be globally unique
 STACK=eeny2025
-S3BUCKET=eeny-2025
-REGION=us-east-2
+S3BUCKET="eeny-2025"
+REGION="us-east-2"
 
 if aws s3api head-bucket --bucket "$S3BUCKET" --region ${REGION} 2>/dev/null; then
   echo "Bucket '$S3BUCKET' exists."
