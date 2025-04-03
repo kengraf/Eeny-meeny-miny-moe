@@ -14,7 +14,9 @@ The CloudFormation stack will export the URL of your lambda function to run the 
 Replace the `friends` file with a list of your friends. One friend per line
 
 ### 3) Deploy
+The deploy assumes your running in AWS cloudshell
 ```
+cd deploy
 sh deploy.sh {your-bucket-name} # The bucket will be created if it doesn't exist
 ```
 
