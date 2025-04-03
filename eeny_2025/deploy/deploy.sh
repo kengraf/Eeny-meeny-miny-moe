@@ -10,7 +10,7 @@ if aws s3api head-bucket --bucket "$S3BUCKET" --region ${REGION} 2>/dev/null; th
   echo "Bucket '$S3BUCKET' exists."
 else
   echo "Creating bucket '$S3BUCKET'."
-  aws s3api create-bucket --bucket ${S3BUCKET} --region ${REGION}
+  aws s3api create-bucket --bucket ${S3BUCKET} --region ${REGION}  --create-bucket-configuration LocationConstraint=${REGION}
 fi
     
 echo "Load lambda and friends to S3 bucket..."
