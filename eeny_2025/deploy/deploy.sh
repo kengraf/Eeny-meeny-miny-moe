@@ -22,7 +22,6 @@ echo "Creating stack..."
 # upload cf stack
 STACK_ID=`aws cloudformation deploy --stack-name ${STACK} \
   --template-file eeny2025.yaml --capabilities CAPABILITY_NAMED_IAM \
-  --tags Key=DeployName,Value=${STACK} \
   --region ${REGION} --query "StackId" --output text`
 
 aws cloudformation list-exports --query "Exports[?Name=='EENY2025_URL'].Value" --output text
