@@ -26,4 +26,4 @@ STACK_ID=`aws cloudformation deploy --stack-name ${STACK} \
   --parameter-overrides  S3BUCKET=$S3BUCKET EMAIL=${EMAIL} \
   --region ${REGION} --query "StackId" --output text`
 
-aws cloudformation list-exports --query "Exports[?Name=='EENY2025_URL'].Value" --output text
+aws cloudformation list-exports --query "Exports[?Name=='FetchFunctionUrl'].Value" --output text
