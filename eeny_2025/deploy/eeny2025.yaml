@@ -58,6 +58,9 @@ Resources:
         S3Bucket: !Sub "${S3bucketName}"
         S3Key: "eeny.zip"
       MemorySize: 256
+      Environment:
+        Variables:
+          BUCKET_NAME: !Sub "${S3bucketName}"
 
   FetchFunctionUrl:
     Type: AWS::Lambda::Url
