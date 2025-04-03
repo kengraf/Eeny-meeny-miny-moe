@@ -77,7 +77,10 @@ Resources:
       Action: lambda:InvokeFunctionUrl
       FunctionName: !Ref FetchFunction
       Principal: "*"
-
+      Condition:
+        StringEquals:
+          lambda:FunctionUrlAuthType: NONE
+          
   SNSHealthTopic:
     Type: AWS::SNS::Topic
     Properties:
