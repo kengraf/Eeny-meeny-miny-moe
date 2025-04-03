@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
   S3bucketName:
     Type: String
-    Default: "eeny-2025"
+    Default: "eeny2025"
   DeployName:
     Type: String
     Default: "eeny2025"
@@ -55,11 +55,11 @@ Resources:
     Properties:
       FunctionName: !Sub "${DeployName}"
       Runtime: python3.13
-      Handler: "eeny.lambda_handler"
+      Handler: "eeny2025.lambda_handler"
       Role: !GetAtt LambdaRole.Arn
       Code:
         S3Bucket: !Sub "${S3bucketName}"
-        S3Key: "eeny.zip"
+        S3Key: "eeny2025.zip"
       MemorySize: 256
       Environment:
         Variables:
