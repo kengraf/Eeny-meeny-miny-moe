@@ -23,7 +23,7 @@ echo "Creating stack..."
 # upload cf stack
 STACK_ID=`aws cloudformation deploy --stack-name ${STACK} \
   --template-file eeny2025.yaml --capabilities CAPABILITY_NAMED_IAM \
-  --parameter-overrides  S3BUCKET=$S3BUCKET EMAIL=${EMAIL} \
+  --parameter-overrides  S3bucket=$S3BUCKET Email=${EMAIL} \
   --region ${REGION} --query "StackId" --output text`
 
 aws cloudformation list-exports --query "Exports[?Name=='eeny2025-FetchFunctionUrl'].Value" --output text
