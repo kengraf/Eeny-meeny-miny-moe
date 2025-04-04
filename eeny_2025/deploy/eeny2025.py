@@ -41,7 +41,7 @@ def lambda_handler(event, context):
                 
                 try:
                     response = dynamo.delete_item(
-                        TableName="eeny-redo",
+                        TableName="eeny2026",
                         Key={"Name": {"S": body}},
                         ReturnValues='ALL_OLD'
                     )
