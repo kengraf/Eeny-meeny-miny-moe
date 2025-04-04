@@ -1,24 +1,26 @@
 import json
 import boto3
 import random
+import os
 
 dynamo = boto3.client("dynamodb")
 sns = boto3.client("sns")
+s3 = boto3.client("s3")
 bucket_name = os.environ['BUCKET_NAME'] # set by cloudformation
 
 def reload_data():
     # nuke the curremt content
-    response = dynamodb.scan(TableName='eeny2025')
+    response = dynamo.scan(TableName='eeny2025')
     items = response.get("Items", [])
     for item in items:
         key = {k: v for k, v in item.items()}
-        dynamodb.delete_item(TableName='eeny2025', Key=key)
+        dynamo.delete_item(TableName='eeny2025', Key=key)
         
     # Read the friends file and populate
     response = s3.get_object(Bucket=bucket_name, Key="friends")
     lines = response["Body"].read().decode("utf-8").splitlines()
     for l in lines:
-        dynamo.put_item( TableName='eeny2025', Item={"name": line}) 
+        dynamo.put_item( TableName='eeny2025', Item={"Name": {"S": l}}) 
     
 def lambda_handler(event, context):
     status_code = 200
@@ -26,9 +28,9 @@ def lambda_handler(event, context):
     body = ""
     
     try:
-        if event.get("rawPath") == "/":
+        if event.get("rawPath") == "/reload":
             reload_data()
-        else if event.get("rawPath") == "/":
+        elif ( event.get("rawPath") == "/" ):
             result = dynamo.scan(TableName='eeny2025')
             
             if result.get("Count", 0) == 0:
@@ -41,7 +43,7 @@ def lambda_handler(event, context):
                 
                 try:
                     response = dynamo.delete_item(
-                        TableName="eeny2026",
+                        TableName="eeny2025",
                         Key={"Name": {"S": body}},
                         ReturnValues='ALL_OLD'
                     )
