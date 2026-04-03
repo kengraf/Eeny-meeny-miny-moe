@@ -35,7 +35,7 @@ RoundUp (0.001953125) = 1 billable request(s)
 750 requests per month x 1,000,000 unit multiplier x 1 billable request(s) = 750,000,000 total billable request(s)  
 HTTP API request cost (monthly): 705.00 USD  
 
-###  Total monthly estimated = $26,555.56
+###  Total yearly estimated = $26,555.56
 ---
 ## Adjust deployment code
 - **DynamoDb** Dropped provisioned I/O for PAY_PER_REQUEST
